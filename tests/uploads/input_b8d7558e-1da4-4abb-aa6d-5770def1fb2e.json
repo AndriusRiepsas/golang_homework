@@ -1,0 +1,11 @@
+{
+    "fruit": "Apple",
+    "size": "Large",
+    "number": 2,
+	"price": 1.5,
+	"additional" : {
+		"country": "Lithuania",
+		"city":	"Kaunas",
+		"RefID": 1011
+	}
+}

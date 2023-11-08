@@ -7,6 +7,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/google/uuid"
 )
 
 const uploadDirectory = "./uploads/"
@@ -23,6 +26,7 @@ func (s *FileUploadServer) UploadFile(stream pb.FileUpload_UploadFileServer) err
 
 	var fileName string
 	var fullFilePath string
+	var fileNameWithUUID string
 	var file *os.File
 
 	for {
@@ -34,10 +38,15 @@ func (s *FileUploadServer) UploadFile(stream pb.FileUpload_UploadFileServer) err
 			return err
 		}
 
-		fileName = chunk.FileName
-		fullFilePath = filepath.Join(uploadDirectory, fileName)
-
 		if file == nil {
+			fileName = chunk.FileName
+			ext := filepath.Ext(fileName)
+			baseName := strings.TrimSuffix(fileName, ext)
+
+			uuid := generateUUID()
+			fileNameWithUUID = baseName + "_" + uuid + ext
+
+			fullFilePath = filepath.Join(uploadDirectory, fileNameWithUUID)
 			var err error
 			file, err = getFileForOutput(fullFilePath)
 			if err != nil {
@@ -53,11 +62,11 @@ func (s *FileUploadServer) UploadFile(stream pb.FileUpload_UploadFileServer) err
 		}
 	}
 
-	newFileName := generateModifiedFileName(fileName)
+	newFileName := generateModifiedFileName(fileNameWithUUID)
 	fullNewFilePath := filepath.Join(uploadDirectory, newFileName)
 
 	if err := applyJSONTransformations(fullFilePath, fullNewFilePath); err != nil {
-		log.Printf("Error processing '%s' as JSON file: %v\n", fileName, err)
+		log.Printf("Error processing '%s' as JSON file: %v\n", fullFilePath, err)
 	}
 
 	response := &pb.UploadResponse{
@@ -110,4 +119,8 @@ func generateModifiedFileName(fileName string) string {
 	ext := filepath.Ext(fileName)
 	modifiedFileName := baseName[:len(baseName)-len(ext)] + "_modified" + ext
 	return modifiedFileName
+}
+
+func generateUUID() string {
+	return uuid.New().String()
 }

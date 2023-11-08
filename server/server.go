@@ -62,11 +62,13 @@ func (s *FileUploadServer) UploadFile(stream pb.FileUpload_UploadFileServer) err
 		}
 	}
 
-	newFileName := generateModifiedFileName(fileNameWithUUID)
-	fullNewFilePath := filepath.Join(uploadDirectory, newFileName)
+	if len(fileNameWithUUID) > 0 {
+		newFileName := generateModifiedFileName(fileNameWithUUID)
+		fullNewFilePath := filepath.Join(uploadDirectory, newFileName)
 
-	if err := applyJSONTransformations(fullFilePath, fullNewFilePath); err != nil {
-		log.Printf("Error processing '%s' as JSON file: %v\n", fullFilePath, err)
+		if err := applyJSONTransformations(fullFilePath, fullNewFilePath); err != nil {
+			log.Printf("Error processing '%s' as JSON file: %v\n", fullFilePath, err)
+		}
 	}
 
 	response := &pb.UploadResponse{

@@ -13,7 +13,7 @@ func TestModifyJSON(t *testing.T) {
 
 	outputJSON, err := jsonutil.UpdateJSON(inputJSON)
 	if err != nil {
-		t.Errorf("UpdateIntegers returned an error: %v", err)
+		t.Errorf("UpdateJSON returned an error: %v", err)
 	}
 
 	assert.JSONEq(t, string(expectedJSON), string(outputJSON))
